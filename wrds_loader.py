@@ -3,9 +3,13 @@ import pandas as pd
 import datetime
 import os
 
-def download_stock_data_crsp(ticker_list, chunk_size=100):
-    # Connect to WRDS
-    conn = wrds.Connection()
+def download_stock_data_crsp(ticker_list, chunk_size=100, conn=None):
+    conn_flag = False
+    
+    # Connect to WRDS 
+    if conn == None:
+        conn_flag = True
+        conn = wrds.Connection()
     stock_df = pd.DataFrame()
 
     # Split the ticker list into chunks
@@ -33,7 +37,9 @@ def download_stock_data_crsp(ticker_list, chunk_size=100):
         # Append the chunk data to the main dataframe
         stock_df = pd.concat([stock_df, chunk_df], ignore_index=True)
 
-    conn.close()
+    if conn_flag == True:  
+        conn.close()
+    
     return stock_df
 
 def download_snp_constituents(daily_flag=False):
@@ -95,3 +101,14 @@ def download_snp_constituents(daily_flag=False):
     
     
     return sp500ccm
+
+def download_finratios(ticker, db=None):
+    none_flag = False
+    if db == None:
+        none_flag = True
+        db = wrds.Connection()
+    data = db.raw_sql("SELECT ticker, public_date as date, pe_op_basic, pe_exi, pe_inc, bm FROM wrdsapps_finratio.firm_ratio WHERE ticker = 'AAPL'")
+    data['date'] = pd.to_datetime(data['date'])
+    if none_flag:
+        db.close()
+    return data[['ticker', 'date', 'pe_op_basic', 'pe_exi', 'pe_inc', 'bm']].dropna()
