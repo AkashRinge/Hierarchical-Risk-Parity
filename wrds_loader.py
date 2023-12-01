@@ -107,7 +107,7 @@ def download_finratios(ticker, db=None):
     if db == None:
         none_flag = True
         db = wrds.Connection()
-    data = db.raw_sql("SELECT ticker, public_date as date, pe_op_basic, pe_exi, pe_inc, bm FROM wrdsapps_finratio.firm_ratio WHERE ticker = 'AAPL'")
+    data = db.raw_sql(f"SELECT ticker, public_date as date, pe_op_basic, pe_exi, pe_inc, bm FROM wrdsapps_finratio.firm_ratio WHERE ticker = '{ticker}'")
     data['date'] = pd.to_datetime(data['date'])
     if none_flag:
         db.close()
