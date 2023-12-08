@@ -50,7 +50,7 @@ def download_snp_constituents(daily_flag=False):
         p = 'd'
     
     sp500 = conn.raw_sql(f"""
-                        select a.*, b.date, b.ret
+                        select a.*, b.date, b.ret, b.prc, b.shrout
                         from crsp.{p}sp500list as a,
                         crsp.{p}sf as b
                         where a.permno=b.permno
@@ -100,7 +100,7 @@ def download_snp_constituents(daily_flag=False):
                             &(sp500ccm['date']<=sp500ccm['linkenddt'])]
     
     
-    return sp500ccm
+    return sp500ccm.drop_duplicates(subset=['ticker', 'date'])
 
 def download_finratios(ticker, db=None):
     none_flag = False
